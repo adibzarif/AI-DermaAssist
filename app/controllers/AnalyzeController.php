@@ -36,6 +36,9 @@ class AnalyzeController {
             if (isset($result['detail'])) {
                 $errorMsg .= ' (' . $result['detail'] . ')';
             }
+            if (isset($result['raw'])) {
+                $errorMsg .= ' [Raw: ' . substr(strip_tags($result['raw']), 0, 200) . ']';
+            }
             echo json_encode(['error' => $errorMsg]);
             exit;
         }
