@@ -1,3 +1,8 @@
+import os
+# Configure TensorFlow to use only 1 thread to prevent CPU starvation on Render Free Tier
+os.environ['TF_NUM_INTEROP_THREADS'] = '1'
+os.environ['TF_NUM_INTRAOP_THREADS'] = '1'
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import tensorflow as tf
