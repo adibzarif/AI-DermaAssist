@@ -1,0 +1,230 @@
+/* =============================================
+   INGREDIENT SAFETY CHECKER
+============================================= */
+
+/* ── Page header ── */
+.ingredient-hero {
+    text-align: center;
+    padding: 48px 0 36px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+}
+
+.ingredient-hero h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 10px;
+}
+
+.ingredient-hero p {
+    font-size: 15px;
+    color: var(--muted);
+    margin: 0;
+}
+
+/* ── Search box ── */
+.ingredient-search-wrap {
+    max-width: 580px;
+    margin: 0 auto 44px;
+}
+
+.ingredient-form {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 999px;
+    padding: 6px 6px 6px 22px;
+    box-shadow: var(--shadow-sm);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.ingredient-form:focus-within {
+    border-color: #111;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
+}
+
+.ingredient-form input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    padding: 8px 0;
+}
+
+.ingredient-form input::placeholder {
+    color: #aaa;
+}
+
+.ingredient-form button {
+    flex-shrink: 0;
+    padding: 11px 24px;
+    background: #111;
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+}
+
+.ingredient-form button:hover {
+    background: #333;
+    transform: scale(1.02);
+}
+
+/* ── Results header ── */
+.results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.results-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.results-count {
+    font-size: 13px;
+    color: var(--muted);
+    background: #f5f5f5;
+    padding: 4px 12px;
+    border-radius: 999px;
+}
+
+/* ── Ingredient card ── */
+.ingredient-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 20px 24px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    transition: transform var(--transition), box-shadow var(--transition);
+    animation: fadeUp 0.35s ease both;
+}
+
+.ingredient-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+/* safety color strip on left */
+.ingredient-card-strip {
+    width: 4px;
+    border-radius: 4px;
+    align-self: stretch;
+    flex-shrink: 0;
+    min-height: 40px;
+}
+.strip-safe    { background: #1b9b50; }
+.strip-caution { background: #b88615; }
+.strip-unsafe,
+.strip-avoid   { background: #b81818; }
+.strip-unknown { background: #ccc; }
+
+.ingredient-card-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.ingredient-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.ingredient-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.ingredient-notes {
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.65;
+}
+
+/* ── Safety badges ── */
+.safety-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    flex-shrink: 0;
+}
+
+.safety-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.7;
+}
+
+.safety-badge.safe    { background: #e7f8ec; color: #1b9b50; }
+.safety-badge.caution { background: #fff4db; color: #b88615; }
+.safety-badge.unsafe,
+.safety-badge.avoid   { background: #fdeaea; color: #b81818; }
+.safety-badge.unknown { background: #f0f0f0; color: #888; }
+
+/* ── Empty / no results ── */
+.ingredient-empty {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--muted);
+    border: 1.5px dashed #e0e0e0;
+    border-radius: var(--radius-md);
+}
+
+.ingredient-empty svg {
+    margin-bottom: 14px;
+    opacity: 0.35;
+}
+
+.ingredient-empty p {
+    font-size: 15px;
+    margin: 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 540px) {
+    .ingredient-form {
+        border-radius: var(--radius-md);
+        padding: 10px 14px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .ingredient-form button {
+        width: 100%;
+        text-align: center;
+    }
+
+    .ingredient-hero h2 { font-size: 28px; }
+}

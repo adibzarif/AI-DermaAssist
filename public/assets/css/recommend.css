@@ -1,0 +1,248 @@
+/* =============================================
+   RECOMMEND PAGE — Shopping Checklist System
+============================================= */
+
+:root {
+    --cl-bg:          #ffffff;
+    --cl-border:      #e0e0e0;
+    --cl-accent:      #2d7a2d;
+    --cl-accent-dark: #1f5c1f;
+    --cl-text:        #111111;
+    --cl-muted:       #666666;
+    --cl-sel-bg:      #f0faf0;
+    --cl-sel-border:  #2d7a2d;
+    --cl-shadow:      0 4px 24px rgba(0,0,0,0.12);
+    --cl-panel-w:     340px;
+}
+
+/* ── Selectable product card ── */
+.product-card {
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+}
+.product-card.is-selected { transform: translateY(-2px); }
+
+.card-checkbox-wrap { position: absolute; top: 12px; right: 12px; z-index: 10; }
+.card-checkbox-icon {
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 2px solid #D0C4B8; background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.product-card.is-selected .card-checkbox-icon { background: #2d7a2d; border-color: #2d7a2d; }
+.card-checkbox-icon svg { opacity: 0; transform: scale(0.5); transition: all 0.18s ease; }
+.product-card.is-selected .card-checkbox-icon svg { opacity: 1; transform: scale(1); }
+
+/* ── Floating Checklist Panel ── */
+#checklist-panel {
+    position: fixed; bottom: 28px; right: 28px;
+    width: var(--cl-panel-w);
+    background: var(--cl-bg);
+    border: 1.5px solid var(--cl-border);
+    border-radius: 20px;
+    box-shadow: var(--cl-shadow), 0 0 0 1px rgba(196,149,106,0.08);
+    z-index: 1000; overflow: hidden;
+    transform: translateY(20px); opacity: 0; pointer-events: none;
+    transition: transform 0.32s cubic-bezier(0.34,1.56,0.64,1), opacity 0.24s ease;
+    font-family: 'DM Sans', sans-serif;
+}
+#checklist-panel.is-visible { transform: translateY(0); opacity: 1; pointer-events: all; }
+
+.panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 20px 14px; border-bottom: 1px solid var(--cl-border); background: #ffffff;
+}
+.panel-header-left { display: flex; align-items: center; gap: 10px; }
+.panel-icon {
+    width: 36px; height: 36px; background: #2d7a2d; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+}
+.panel-title { font-family: 'DM Serif Display', serif; font-size: 15px; color: var(--cl-text); font-weight: 400; }
+.panel-subtitle { font-size: 11px; color: var(--cl-muted); margin-top: 1px; }
+.panel-toggle-btn {
+    background: none; border: none; cursor: pointer; color: var(--cl-muted);
+    padding: 4px; border-radius: 6px; display: flex;
+    transition: background 0.15s, transform 0.2s;
+}
+.panel-toggle-btn:hover { background: rgba(45,122,45,0.1); color: #1f5c1f; }
+
+.panel-body { max-height: 340px; overflow: hidden; transition: max-height 0.3s ease; }
+.panel-body.is-collapsed { max-height: 0; }
+
+#checklist-items {
+    padding: 14px 20px; display: flex; flex-direction: column; gap: 10px;
+    max-height: 220px; overflow-y: auto;
+    scrollbar-width: thin; scrollbar-color: #D9CCB8 transparent;
+}
+#checklist-items:empty::before {
+    content: "Tap products above to add them here";
+    display: block; color: var(--cl-muted);
+    font-size: 12.5px; text-align: center; padding: 10px 0; font-style: italic;
+}
+
+.checklist-item { display: flex; align-items: flex-start; gap: 10px; animation: itemSlideIn 0.22s ease; }
+@keyframes itemSlideIn { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } }
+
+.checklist-item-img {
+    width: 38px; height: 38px; border-radius: 8px; object-fit: cover;
+    border: 1px solid var(--cl-border); flex-shrink: 0; background: #f5f5f5;
+}
+.checklist-item-info { flex: 1; min-width: 0; }
+.checklist-item-brand { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--cl-muted); font-weight: 600; }
+.checklist-item-name { font-size: 12.5px; color: var(--cl-text); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.checklist-item-price { font-size: 13px; font-weight: 600; color: #2d7a2d; white-space: nowrap; flex-shrink: 0; align-self: center; }
+.checklist-item-price.no-price { font-size: 11px; color: var(--cl-muted); font-weight: 400; font-style: italic; }
+.checklist-remove-btn {
+    background: none; border: none; cursor: pointer; color: #C0B0A0;
+    padding: 2px; border-radius: 4px; display: flex; align-self: center; flex-shrink: 0;
+    transition: color 0.15s;
+}
+.checklist-remove-btn:hover { color: #C06060; }
+
+.panel-divider { height: 1px; background: var(--cl-border); margin: 0 20px; }
+.panel-total { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px 16px; }
+.total-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--cl-muted); font-weight: 600; }
+.total-value { font-family: 'DM Serif Display', serif; font-size: 22px; color: #111111; }
+.total-value .currency { font-size: 14px; vertical-align: super; color: var(--cl-muted); }
+.total-note { font-size: 10.5px; color: var(--cl-muted); text-align: right; }
+
+.panel-actions { padding: 0 20px 18px; display: flex; gap: 8px; }
+.panel-btn-clear {
+    flex: 1; padding: 9px 0; border: 1.5px solid var(--cl-border); background: transparent;
+    border-radius: 10px; font-size: 12.5px; color: var(--cl-muted); cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-weight: 500; transition: all 0.15s;
+}
+.panel-btn-clear:hover { border-color: #C06060; color: #C06060; background: #FFF5F5; }
+.panel-btn-save {
+    flex: 2; padding: 9px 0; background: #2d7a2d; border: none; border-radius: 10px;
+    font-size: 12.5px; color: #fff; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-weight: 600; letter-spacing: 0.02em;
+    transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.panel-btn-save:hover { background: #1f5c1f; transform: translateY(-1px); }
+
+/* ── FAB ── */
+#checklist-fab {
+    position: fixed; bottom: 28px; right: 28px; width: 56px; height: 56px;
+    background: #2d7a2d; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; box-shadow: 0 6px 20px rgba(45,122,45,0.35);
+    z-index: 999; transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s;
+    opacity: 0; pointer-events: none;
+}
+#checklist-fab.is-visible { opacity: 1; pointer-events: all; }
+#checklist-fab:hover { transform: scale(1.08); box-shadow: 0 8px 28px rgba(45,122,45,0.45); }
+#checklist-fab-count {
+    position: absolute; top: -4px; right: -4px;
+    width: 20px; height: 20px; background: var(--cl-text); border-radius: 50%;
+    font-size: 11px; color: #fff; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Sans', sans-serif;
+}
+
+/* ── Receipt Modal ── */
+.receipt-modal-backdrop {
+    position: fixed; inset: 0; background: rgba(44,31,20,0.45); z-index: 2000;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.22s;
+}
+.receipt-modal-backdrop.is-open { opacity: 1; pointer-events: all; }
+.receipt-modal {
+    background: #fff; border-radius: 20px; width: 340px;
+    max-width: 92vw; max-height: 88vh; overflow-y: auto;
+    box-shadow: 0 24px 64px rgba(44,31,20,0.22);
+    transform: scale(0.94) translateY(12px);
+    transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1);
+    font-family: 'DM Sans', sans-serif;
+}
+.receipt-modal-backdrop.is-open .receipt-modal { transform: scale(1) translateY(0); }
+
+.receipt-top { padding: 24px 24px 16px; text-align: center; border-bottom: 1px dashed #E0D5C8; background: #ffffff; }
+.receipt-logo { width: 44px; height: 44px; background: #2d7a2d; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
+.receipt-title { font-family: 'DM Serif Display', serif; font-size: 19px; color: var(--cl-text); }
+.receipt-date { font-size: 11px; color: var(--cl-muted); margin-top: 4px; }
+.receipt-skin-info { display: flex; gap: 8px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
+.receipt-badge { background: #e6f4e6; color: #2d7a2d; padding: 3px 10px; border-radius: 20px; font-size: 10.5px; font-weight: 600; text-transform: capitalize; }
+.receipt-items { padding: 16px 24px; display: flex; flex-direction: column; gap: 12px; }
+.receipt-row { display: flex; gap: 10px; align-items: flex-start; }
+.receipt-row-num { width: 20px; height: 20px; background: var(--cl-border); border-radius: 50%; font-size: 10px; color: var(--cl-muted); font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.receipt-row-info { flex: 1; }
+.receipt-row-brand { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--cl-muted); font-weight: 600; }
+.receipt-row-name  { font-size: 13px; color: var(--cl-text); font-weight: 500; line-height: 1.3; }
+.receipt-row-price { font-size: 13px; font-weight: 700; color: #2d7a2d; white-space: nowrap; }
+.receipt-row-price.tba { font-size: 11px; color: var(--cl-muted); font-weight: 400; font-style: italic; }
+.receipt-row-store { font-size: 10px; color: #2d7a2d; background: #e6f4e6; display: inline-block; padding: 1px 7px; border-radius: 20px; font-weight: 500; margin-top: 3px; }
+.receipt-total-row { margin: 0 24px; padding: 14px 0; border-top: 2px solid var(--cl-text); border-bottom: 1px dashed #E0D5C8; display: flex; justify-content: space-between; align-items: baseline; }
+.receipt-total-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; color: var(--cl-text); }
+.receipt-total-val { font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--cl-text); }
+.receipt-footer-note { padding: 14px 24px 6px; font-size: 11px; color: var(--cl-muted); text-align: center; line-height: 1.5; }
+.receipt-modal-actions { padding: 14px 24px 22px; display: flex; gap: 8px; }
+.receipt-close-btn { flex: 1; padding: 10px; border: 1.5px solid var(--cl-border); background: transparent; border-radius: 10px; font-size: 13px; color: var(--cl-muted); cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; transition: all 0.15s; }
+.receipt-close-btn:hover { border-color: var(--cl-text); color: var(--cl-text); }
+.receipt-print-btn { flex: 2; padding: 10px; background: #2d7a2d; border: none; border-radius: 10px; font-size: 13px; color: #fff; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.15s; }
+.receipt-print-btn:hover { background: var(--cl-accent-dark); }
+
+/* ── Card price ── */
+.card-price-row { display: flex; align-items: center; gap: 6px; margin: 6px 0 10px; flex-wrap: wrap; }
+.card-price-amount { font-family: 'DM Serif Display', serif; font-size: 17px; color: #2d7a2d; line-height: 1; }
+.card-price-amount .currency { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600; vertical-align: super; color: #2d7a2d; }
+.card-price-store { font-size: 10.5px; color: #2d7a2d; background: #dcf0dc; padding: 2px 7px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
+.card-price-tba { font-size: 11px; color: var(--cl-muted); font-style: italic; margin: 6px 0 10px; }
+
+/* ── Toast ── */
+.cl-toast {
+    position: fixed; bottom: 90px; right: 28px;
+    background: var(--cl-text); color: #fff;
+    padding: 10px 18px; border-radius: 30px;
+    font-size: 13px; font-family: 'DM Sans', sans-serif;
+    z-index: 1500; opacity: 0; transform: translateY(8px);
+    pointer-events: none; transition: all 0.22s ease;
+}
+.cl-toast.show { opacity: 1; transform: translateY(0); }
+
+/* ── Responsive ── */
+@media (max-width: 420px) {
+    #checklist-panel { right: 10px; bottom: 10px; width: calc(100vw - 20px); }
+    #checklist-fab  { right: 16px; bottom: 16px; }
+    .cl-toast       { right: 16px; }
+}
+
+@media print {
+
+    body * {
+        visibility: hidden;
+    }
+
+    #receipt-backdrop,
+    #receipt-backdrop * {
+        visibility: visible;
+    }
+
+    #receipt-backdrop {
+        position: absolute !important;
+        inset: 0 !important;
+        display: block !important;
+        background: #fff !important;
+        opacity: 1 !important;
+    }
+
+    .receipt-modal {
+        position: static !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: none !important;
+        overflow: visible !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        transform: none !important;
+        margin: 0 !important;
+    }
+
+    .receipt-modal-actions,
+    .receipt-close-btn,
+    .receipt-print-btn {
+        display: none !important;
+    }
+}

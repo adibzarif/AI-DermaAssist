@@ -1,0 +1,23 @@
+.input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.box {
+  min-height: 200px;
+  border: 2px dashed #ccc;
+  padding: 10px;
+  background: #f9f9f9;
+}
+
+.drag-item {
+  padding: 8px;
+  margin: 5px 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: grab;
+}
