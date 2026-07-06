@@ -277,6 +277,7 @@
 
 <!-- Products list injected by controller (no raw DB calls in view) -->
 <script>
+const FLASK_API_URL = "<?= $config['flask_api']['url'] ?>";
 const products = <?= json_encode($products) ?>;
 </script>
 

@@ -391,19 +391,33 @@ function captureImage(faceBox) {
         formData.append("image", blob, "capture.png");
         showStep("stepProcessing");
 
-        fetch("analyze_entry.php", { method: "POST", body: formData })
+        // 1. Send image directly to the Flask API
+        fetch(FLASK_API_URL, { method: "POST", body: formData })
             .then(res => res.json())
-            .then(data => {
-                if (data.error) {
-                    alert(data.error);
+            .then(aiResult => {
+                if (aiResult.error) {
+                    alert("AI API Error: " + aiResult.error);
                     showStep("stepUpload");
                     return;
                 }
-                if (data.problem_scores && !data.problem_scores_scaled) {
-                    data.problem_scores_scaled = {};
-                    Object.entries(data.problem_scores).forEach(([k, v]) => {
-                        data.problem_scores_scaled[k.toLowerCase()] = Math.round(v * 100);
-                    });
+
+                // 2. Send image and AI result to PHP to save
+                const phpData = new FormData();
+                phpData.append("image", blob, "capture.png");
+                phpData.append("result", JSON.stringify(aiResult));
+
+                return fetch("analyze_entry.php", { method: "POST", body: phpData });
+            })
+            .then(res => {
+                if (!res) return;
+                return res.json();
+            })
+            .then(data => {
+                if (!data) return;
+                if (data.error) {
+                    alert("Save Error: " + data.error);
+                    showStep("stepUpload");
+                    return;
                 }
                 populateProfileFromAI(data);
                 showStep("stepProfile");
@@ -455,19 +469,33 @@ fileInput.onchange = async function (event) {
     formData.append("image", file);
     showStep("stepProcessing");
 
-    fetch("analyze_entry.php", { method: "POST", body: formData })
+    // 1. Send image directly to the Flask API
+    fetch(FLASK_API_URL, { method: "POST", body: formData })
         .then(res => res.json())
-        .then(data => {
-            if (data.error) {
-                alert(data.error);
+        .then(aiResult => {
+            if (aiResult.error) {
+                alert("AI API Error: " + aiResult.error);
                 showStep("stepUpload");
                 return;
             }
-            if (data.problem_scores && !data.problem_scores_scaled) {
-                data.problem_scores_scaled = {};
-                Object.entries(data.problem_scores).forEach(([k, v]) => {
-                    data.problem_scores_scaled[k.toLowerCase()] = Math.round(v * 100);
-                });
+
+            // 2. Send image and AI result to PHP to save
+            const phpData = new FormData();
+            phpData.append("image", file);
+            phpData.append("result", JSON.stringify(aiResult));
+
+            return fetch("analyze_entry.php", { method: "POST", body: phpData });
+        })
+        .then(res => {
+            if (!res) return;
+            return res.json();
+        })
+        .then(data => {
+            if (!data) return;
+            if (data.error) {
+                alert("Save Error: " + data.error);
+                showStep("stepUpload");
+                return;
             }
             populateProfileFromAI(data);
             showStep("stepProfile");

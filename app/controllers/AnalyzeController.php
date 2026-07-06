@@ -29,24 +29,25 @@ class AnalyzeController {
             exit;
         }
 
-        $result = $this->ai->analyzeImage($path);
+        // Retrieve the result JSON string sent by the browser
+        $resultJson = $_POST['result'] ?? null;
+        if (!$resultJson) {
+            echo json_encode(['error' => 'No analysis result provided by browser.']);
+            exit;
+        }
 
-        if (isset($result['error'])) {
-            $errorMsg = 'AI Error: ' . $result['error'];
-            if (isset($result['detail'])) {
-                $errorMsg .= ' (' . $result['detail'] . ')';
-            }
-            if (isset($result['raw'])) {
-                $errorMsg .= ' [Raw: ' . substr(strip_tags($result['raw']), 0, 200) . ']';
-            }
-            echo json_encode(['error' => $errorMsg]);
+        $result = json_decode($resultJson, true);
+        if ($result === null || isset($result['error'])) {
+            echo json_encode(['error' => 'Invalid analysis result: ' . ($result['error'] ?? 'JSON decode failed')]);
             exit;
         }
 
         // Normalize scores to lowercase keys
         $scaled_scores = [];
-        foreach ($result['problem_scores'] as $k => $v) {
-            $scaled_scores[strtolower($k)] = round($v * 100);
+        if (isset($result['problem_scores'])) {
+            foreach ($result['problem_scores'] as $k => $v) {
+                $scaled_scores[strtolower($k)] = round($v * 100);
+            }
         }
         $result['problem_scores_scaled'] = $scaled_scores;
 

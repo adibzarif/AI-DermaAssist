@@ -12,6 +12,7 @@ class SkinAnalysisController {
 
     // ── GET: render skin analysis landing + modal page ─────
     public function index() {
+        $config   = include __DIR__ . '/../config/config.php';
         $loggedIn = isset($_SESSION['user_id']);
         $products = $this->model->getAllProducts();
 
