@@ -394,6 +394,11 @@ function captureImage(faceBox) {
         fetch("analyze_entry.php", { method: "POST", body: formData })
             .then(res => res.json())
             .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    showStep("stepUpload");
+                    return;
+                }
                 if (data.problem_scores && !data.problem_scores_scaled) {
                     data.problem_scores_scaled = {};
                     Object.entries(data.problem_scores).forEach(([k, v]) => {
@@ -453,6 +458,11 @@ fileInput.onchange = async function (event) {
     fetch("analyze_entry.php", { method: "POST", body: formData })
         .then(res => res.json())
         .then(data => {
+            if (data.error) {
+                alert(data.error);
+                showStep("stepUpload");
+                return;
+            }
             if (data.problem_scores && !data.problem_scores_scaled) {
                 data.problem_scores_scaled = {};
                 Object.entries(data.problem_scores).forEach(([k, v]) => {

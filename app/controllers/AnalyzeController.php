@@ -32,7 +32,11 @@ class AnalyzeController {
         $result = $this->ai->analyzeImage($path);
 
         if (isset($result['error'])) {
-            echo json_encode(['error' => 'AI Error, unable to analyze image.']);
+            $errorMsg = 'AI Error: ' . $result['error'];
+            if (isset($result['detail'])) {
+                $errorMsg .= ' (' . $result['detail'] . ')';
+            }
+            echo json_encode(['error' => $errorMsg]);
             exit;
         }
 
