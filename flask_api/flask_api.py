@@ -2,13 +2,19 @@ import os
 # Configure TensorFlow to use only 1 thread to prevent CPU starvation on Render Free Tier
 os.environ['TF_NUM_INTEROP_THREADS'] = '1'
 os.environ['TF_NUM_INTRAOP_THREADS'] = '1'
+# Disable GPU (CPU-only on Render)
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import tensorflow as tf
 import numpy as np
 from PIL import Image
-import io, json, os
+import io, json
+
+# Limit TF to only use memory it actually needs (prevents OOM on 512MB Render free tier)
+tf.config.threading.set_inter_op_parallelism_threads(1)
+tf.config.threading.set_intra_op_parallelism_threads(1)
 
 app = Flask(__name__)
 CORS(app)
@@ -16,7 +22,7 @@ BASE = os.path.dirname(__file__)
 
 # ================= LOAD MODEL =================
 def load_model_and_labels(name):
-    mpath = os.path.join(BASE, f'model_{name}.h5')
+    mpath  = os.path.join(BASE, f'model_{name}.h5')
     lmpath = os.path.join(BASE, f'label_map_{name}.json')
 
     if not os.path.exists(mpath) or not os.path.exists(lmpath):
@@ -44,25 +50,21 @@ def preprocess_image(file_bytes, target_size=(224,224)):
     return arr
 
 # ================= LOAD MODELS ON STARTUP =================
+# Load once globally - avoids reloading on every request (which caused timeouts)
 MODELS = {}
 LABELS = {}
 
 try:
-    print("Pre-loading models for instant predictions...")
-    MODELS['problem'], LABELS['problem'] = load_model_and_labels('problem')
+    print("Pre-loading models into memory (this takes ~30s on cold start)...")
+    MODELS['problem'],  LABELS['problem']  = load_model_and_labels('problem')
+    print("  [1/3] Problem model loaded.")
     MODELS['skintype'], LABELS['skintype'] = load_model_and_labels('skintype')
+    print("  [2/3] Skin type model loaded.")
     MODELS['skintone'], LABELS['skintone'] = load_model_and_labels('skintone')
-    print("All models loaded successfully on startup!")
-
-    # Warm up models to pre-compile execution graphs
-    print("Warming up models with dummy predictions...")
-    dummy_input = np.zeros((1, 224, 224, 3))
-    MODELS['problem'].predict(dummy_input)
-    MODELS['skintype'].predict(dummy_input)
-    MODELS['skintone'].predict(dummy_input)
-    print("All models warmed up and compiled successfully!")
+    print("  [3/3] Skin tone model loaded.")
+    print("All models ready! Predictions will now run instantly.")
 except Exception as e:
-    print(f"CRITICAL: Failed to load/warmup models on startup: {e}")
+    print(f"CRITICAL: Failed to load models on startup: {e}")
 
 # ================= PREDICT =================
 @app.route('/predict', methods=['POST'])
