@@ -53,8 +53,16 @@ try:
     MODELS['skintype'], LABELS['skintype'] = load_model_and_labels('skintype')
     MODELS['skintone'], LABELS['skintone'] = load_model_and_labels('skintone')
     print("All models loaded successfully on startup!")
+
+    # Warm up models to pre-compile execution graphs
+    print("Warming up models with dummy predictions...")
+    dummy_input = np.zeros((1, 224, 224, 3))
+    MODELS['problem'].predict(dummy_input)
+    MODELS['skintype'].predict(dummy_input)
+    MODELS['skintone'].predict(dummy_input)
+    print("All models warmed up and compiled successfully!")
 except Exception as e:
-    print(f"CRITICAL: Failed to load models on startup: {e}")
+    print(f"CRITICAL: Failed to load/warmup models on startup: {e}")
 
 # ================= PREDICT =================
 @app.route('/predict', methods=['POST'])
