@@ -38,6 +38,19 @@ def preprocess_image(file_bytes, target_size=(224,224)):
     arr = np.expand_dims(arr, axis=0)
     return arr
 
+# ================= LOAD MODELS ON STARTUP =================
+MODELS = {}
+LABELS = {}
+
+try:
+    print("Pre-loading models for instant predictions...")
+    MODELS['problem'], LABELS['problem'] = load_model_and_labels('problem')
+    MODELS['skintype'], LABELS['skintype'] = load_model_and_labels('skintype')
+    MODELS['skintone'], LABELS['skintone'] = load_model_and_labels('skintone')
+    print("All models loaded successfully on startup!")
+except Exception as e:
+    print(f"CRITICAL: Failed to load models on startup: {e}")
+
 # ================= PREDICT =================
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -48,8 +61,12 @@ def predict():
     x = preprocess_image(file)
 
     try:
+        if 'problem' not in MODELS or 'skintype' not in MODELS or 'skintone' not in MODELS:
+            return jsonify({'error': 'models_not_ready', 'detail': 'Models are still loading on startup. Please try again in a few seconds.'}), 503
+
         # ===== PROBLEM MODEL =====
-        m_p, lm_p = load_model_and_labels('problem')
+        m_p = MODELS['problem']
+        lm_p = LABELS['problem']
         preds_p = m_p.predict(x)[0]
 
         # 🔥 FIX: reduce redness bias
@@ -69,12 +86,14 @@ def predict():
             probs_p[label] = float(preds_p[i])
 
         # ===== SKIN TYPE =====
-        m_t, lm_t = load_model_and_labels('skintype')
+        m_t = MODELS['skintype']
+        lm_t = LABELS['skintype']
         preds_t = m_t.predict(x)[0].tolist()
         probs_t = {lm_t[i]: float(preds_t[i]) for i in range(len(preds_t))}
 
         # ===== SKIN TONE =====
-        m_s, lm_s = load_model_and_labels('skintone')
+        m_s = MODELS['skintone']
+        lm_s = LABELS['skintone']
         preds_s = m_s.predict(x)[0].tolist()
         probs_s = {lm_s[i]: float(preds_s[i]) for i in range(len(preds_s))}
 
